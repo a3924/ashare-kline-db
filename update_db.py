@@ -95,7 +95,21 @@ def work(codes, start, step):
         time.sleep(random.uniform(0.2, 0.6))
 
 
+def prune_old(keep=3):
+    """db/ 下只保留最近 keep 个日期目录，防止仓库无限膨胀"""
+    try:
+        dirs = [d for d in os.listdir(os.path.join(HERE, "db")) if os.path.isdir(os.path.join(HERE, "db", d)) and len(d) == 8]
+        dirs.sort(reverse=True)
+        for d in dirs[keep:]:
+            import shutil
+            shutil.rmtree(os.path.join(HERE, "db", d))
+            print("pruned old dir", d, flush=True)
+    except Exception as e:
+        print("prune warn", repr(e), flush=True)
+
+
 def main():
+    prune_old(3)
     cs = codes()
     os.makedirs(OUT, exist_ok=True)
     print("total", len(cs), "->", OUT, flush=True)
